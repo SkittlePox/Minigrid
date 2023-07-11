@@ -61,7 +61,7 @@ class LockedRoomEnv(MiniGridEnv):
 
     ## Rewards
 
-    A reward of '1 - 0.9 * (step_count / max_steps)' is given for success, and '0' for failure.
+    A reward of '1' is given for success, and '0' for failure.
 
     ## Termination
 
@@ -142,24 +142,37 @@ class LockedRoomEnv(MiniGridEnv):
         goalPos = lockedRoom.rand_pos(self)
         self.grid.set(*goalPos, Goal())
 
+
         # Assign the door colors
         colors = set(COLOR_NAMES)
+        # RLANG Modification to make the locked room always red
         for room in self.rooms:
+            if room.locked:
+                room.color = "red"
+                self.grid.set(*room.doorPos, Door("red", is_locked=True))
+                colors.remove("red")
+        
+        for room in self.rooms:
+            if room.locked:
+                continue
             color = self._rand_elem(sorted(colors))
             colors.remove(color)
             room.color = color
-            if room.locked:
-                self.grid.set(*room.doorPos, Door(color, is_locked=True))
-            else:
-                self.grid.set(*room.doorPos, Door(color))
+            self.grid.set(*room.doorPos, Door(color))
+
+        # RLANG Modification to make the room with key always grey
+        for room in self.rooms:
+            if room.color == "grey":
+                keyRoom = room
+                self.grid.set(*room.rand_pos(self), Key(lockedRoom.color))
 
         # Select a random room to contain the key
-        while True:
-            keyRoom = self._rand_elem(self.rooms)
-            if keyRoom != lockedRoom:
-                break
-        keyPos = keyRoom.rand_pos(self)
-        self.grid.set(*keyPos, Key(lockedRoom.color))
+        # while True:
+        #     keyRoom = self._rand_elem(self.rooms)
+        #     if keyRoom != lockedRoom:
+        #         break
+        # keyPos = keyRoom.rand_pos(self)
+        # self.grid.set(*keyPos, Key(lockedRoom.color))
 
         # Randomize the player start position and orientation
         self.agent_pos = self.place_agent(

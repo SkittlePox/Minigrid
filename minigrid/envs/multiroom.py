@@ -52,7 +52,7 @@ class MultiRoomEnv(MiniGridEnv):
 
     ## Rewards
 
-    A reward of '1 - 0.9 * (step_count / max_steps)' is given for success, and '0' for failure.
+    A reward of '1' is given for success, and '0' for failure.
 
     ## Termination
 
@@ -142,6 +142,7 @@ class MultiRoomEnv(MiniGridEnv):
         wall = Wall()
 
         prevDoorColor = None
+        prevDoorColors = []
 
         # For each room
         for idx, room in enumerate(roomList):
@@ -163,15 +164,22 @@ class MultiRoomEnv(MiniGridEnv):
             if idx > 0:
                 # Pick a door color different from the previous one
                 doorColors = set(COLOR_NAMES)
-                if prevDoorColor:
-                    doorColors.remove(prevDoorColor)
+                for predoor in prevDoorColors:
+                    doorColors.remove(predoor)
+                if doorColors == []:
+                    prevDoorColors = []
+                    doorColors = set(COLOR_NAMES)
+                # if prevDoorColor:
+                #     doorColors.remove(prevDoorColor)
                 # Note: the use of sorting here guarantees determinism,
                 # This is needed because Python's set is not deterministic
-                doorColor = self._rand_elem(sorted(doorColors))
+                # doorColor = self._rand_elem(sorted(doorColors))
+                doorColor = sorted(doorColors)[0]
 
                 entryDoor = Door(doorColor)
                 self.grid.set(room.entryDoorPos[0], room.entryDoorPos[1], entryDoor)
                 prevDoorColor = doorColor
+                prevDoorColors.append(doorColor)
 
                 prevRoom = roomList[idx - 1]
                 prevRoom.exitDoorPos = room.entryDoorPos
