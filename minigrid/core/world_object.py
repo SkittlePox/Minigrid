@@ -1,7 +1,6 @@
 from __future__ import annotations
-
+import random
 from typing import TYPE_CHECKING, Tuple
-
 import numpy as np
 
 from minigrid.core.constants import (
@@ -42,6 +41,8 @@ class WorldObj:
 
         # Current position of the object
         self.cur_pos: Point | None = None
+
+        self.persistent_id = random.randint(100000, 999999)
 
     def can_overlap(self) -> bool:
         """Can the agent overlap with this?"""
@@ -105,6 +106,9 @@ class WorldObj:
     def render(self, r: np.ndarray) -> np.ndarray:
         """Draw this object with the given renderer"""
         raise NotImplementedError
+    
+    def __hash__(self) -> int:
+        return self.persistent_id
 
 
 class Goal(WorldObj):
@@ -292,3 +296,7 @@ class Box(WorldObj):
         # Replace the box by its contents
         env.grid.set(pos[0], pos[1], self.contains)
         return True
+    
+    def encode(self):
+        state = 0 if self.contains is None else 1
+        return (OBJECT_TO_IDX[self.type], COLOR_TO_IDX[self.color], state)

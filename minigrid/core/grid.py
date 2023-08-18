@@ -263,7 +263,7 @@ class Grid:
                         array[i, j, 2] = 0
 
                     else:
-                        array[i, j, :] = v.encode()
+                        array[i, j, :] = v.encode() # It looks like each world object has its own encoding function
 
         return array
 
