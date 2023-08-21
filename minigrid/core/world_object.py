@@ -42,7 +42,7 @@ class WorldObj:
         # Current position of the object
         self.cur_pos: Point | None = None
 
-        self.persistent_id = random.randint(100000, 999999)
+        self.persistent_id = random.randint(1000, 9999)
 
     def can_overlap(self) -> bool:
         """Can the agent overlap with this?"""
@@ -184,6 +184,7 @@ class Door(WorldObj):
         return self.is_open
 
     def see_behind(self):
+        
         return self.is_open
 
     def toggle(self, env, pos):
